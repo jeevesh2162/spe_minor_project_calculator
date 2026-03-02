@@ -51,7 +51,7 @@ pipeline {
             steps {
                 echo "Building Docker image: ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 sh 'docker --version'
-                sh 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG $DOCKER_CONTEXT'
+                sh 'docker buildx build --load -t $DOCKER_IMAGE:$DOCKER_TAG .'
             }
         }
 
