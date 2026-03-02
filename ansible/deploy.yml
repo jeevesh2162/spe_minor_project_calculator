@@ -1,0 +1,14 @@
+---
+- name: Deploy Scientific Calculator Docker Container
+  hosts: webserver
+  become: false
+  tasks:
+    - name: Ensure scientific calculator container is running
+      community.docker.docker_container:
+        name: calculator-backend
+        image: "{{ lookup('env', 'DOCKER_IMAGE') }}:{{ lookup('env', 'DOCKER_TAG') }}"
+        state: started
+        restart_policy: always
+        published_ports:
+          - "8080:8080"
+        pull: true

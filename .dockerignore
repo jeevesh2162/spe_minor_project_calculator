@@ -1,0 +1,16 @@
+# Exclude development folders
+node_modules
+.git
+.gitignore
+README.md
+
+# Exclude potential build files from root
+/tmp/
+/dist/
+
+# Exclude project sub-folders except the jar-related paths
+# This ensures that only the jar is copied in the context build
+# (although technically the current Dockerfile does that anyway).
+calculator-frontend/
+calculator-backend/src/
+calculator-backend/pom.xml

@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  # Calculator Backend service
+  calculator-backend:
+    build: .
+    image: your_dockerhub_user/sci-calc:latest
+    container_name: calculator-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - calculator-network
+
+  # Note: Frontend service can be added here once we have a separate Dockerfile 
+  # or use a multi-stage Dockerfile that bundles the frontend in the JAR.
+
+networks:
+  calculator-network:
+    driver: bridge
