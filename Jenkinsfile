@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         // ✅ CHANGE THIS to your DockerHub username
-        DOCKER_IMAGE   = "YOUR_DOCKERHUB_USERNAME/sci-calc"
+        DOCKER_IMAGE   = "jeevesh2802/sci-calc"
         DOCKER_TAG     = "latest"
 
         // ✅ Jenkins Credentials ID for DockerHub (Username/Password or Token)
