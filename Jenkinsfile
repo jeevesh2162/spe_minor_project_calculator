@@ -7,18 +7,18 @@ pipeline {
     }
 
     environment {
-        // ✅ CHANGE THIS to your DockerHub username
+        // ✅ Your DockerHub repo
         DOCKER_IMAGE   = "jeevesh2802/sci-calc"
         DOCKER_TAG     = "latest"
 
-        // ✅ Jenkins Credentials ID for DockerHub (Username/Password or Token)
+        // ✅ Jenkins Credentials ID (Username + PAT token)
         DOCKERHUB_CREDS = "dockerhub-creds"
 
-        // ✅ If pom.xml is in repo root, set APP_DIR="."
+        // ✅ Maven project directory
         APP_DIR = "calculator-backend"
 
-        // ✅ Where your Dockerfile is (repo root usually)
-        DOCKER_CONTEXT = "."
+        // ✅ Docker build context (repo root)
+        DOCKER_BUILD_CONTEXT = "."
     }
 
     stages {
@@ -50,8 +50,14 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo "Building Docker image: ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                sh 'docker --version'
-                sh 'docker buildx build --load -t $DOCKER_IMAGE:$DOCKER_TAG .'
+
+                sh '''
+                    set -eux
+                    docker --version
+                    # Avoid buildx/builder issues inside Jenkins container
+                    export DOCKER_BUILDKIT=0
+                    docker build -t "$DOCKER_IMAGE:$DOCKER_TAG" "$DOCKER_BUILD_CONTEXT"
+                '''
             }
         }
 
@@ -62,8 +68,9 @@ pipeline {
                                                  usernameVariable: 'DU',
                                                  passwordVariable: 'DP')]) {
                     sh '''
+                        set -eux
                         echo "$DP" | docker login -u "$DU" --password-stdin
-                        docker push $DOCKER_IMAGE:$DOCKER_TAG
+                        docker push "$DOCKER_IMAGE:$DOCKER_TAG"
                         docker logout
                     '''
                 }
@@ -73,7 +80,7 @@ pipeline {
         stage('Deploy (Ansible)') {
             steps {
                 echo "Deploying via Ansible..."
-                // expects: ansible/inventory.ini and ansible/deploy.yml in your repo
+                sh 'ansible --version'
                 sh 'ansible-playbook -i ansible/inventory.ini ansible/deploy.yml'
             }
         }
@@ -82,7 +89,11 @@ pipeline {
     post {
         always {
             echo 'Pipeline execution finished.'
-            sh 'docker image ls | head -n 20 || true'
+            sh '''
+                set +e
+                docker image ls | head -n 20
+                exit 0
+            '''
         }
         success { echo '✅ CI/CD completed successfully!' }
         failure { echo '❌ Pipeline failed. Check Console Output.' }
