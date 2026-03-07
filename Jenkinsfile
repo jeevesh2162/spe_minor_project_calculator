@@ -19,6 +19,9 @@ pipeline {
 
         // ✅ Docker build context (repo root)
         DOCKER_BUILD_CONTEXT = "."
+
+        // ✅ Notification Email
+        NOTIFICATION_EMAIL = "jeeveshvwandra@gmail.com"
     }
 
     stages {
@@ -27,6 +30,14 @@ pipeline {
             steps {
                 echo 'Checking out source code...'
                 checkout scm
+            }
+        }
+
+        stage('Unit Test (Standalone)') {
+            steps {
+                echo 'Running standalone Java test...'
+                sh 'javac test/Main.java'
+                sh 'java -ea -cp test Main'
             }
         }
 
@@ -95,7 +106,17 @@ pipeline {
                 exit 0
             '''
         }
-        success { echo '✅ CI/CD completed successfully!' }
-        failure { echo '❌ Pipeline failed. Check Console Output.' }
+        success {
+            echo '✅ CI/CD completed successfully!'
+            mail to: "${NOTIFICATION_EMAIL}",
+                 subject: "Success: Pipeline ${currentBuild.fullDisplayName}",
+                 body: "Great news! The pipeline ${currentBuild.fullDisplayName} finished successfully. \n\nCheck the build status at: ${env.BUILD_URL}"
+        }
+        failure {
+            echo '❌ Pipeline failed. Check Console Output.'
+            mail to: "${NOTIFICATION_EMAIL}",
+                 subject: "Failure: Pipeline ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${currentBuild.fullDisplayName} has failed. \n\nPlease check the console output at: ${env.BUILD_URL}"
+        }
     }
 }
