@@ -7,20 +7,11 @@ pipeline {
     }
 
     environment {
-        // ✅ Your DockerHub repo
         DOCKER_IMAGE   = "jeevesh2802/sci-calc"
         DOCKER_TAG     = "latest"
-
-        // ✅ Jenkins Credentials ID (Username + PAT token)
         DOCKERHUB_CREDS = "dockerhub-creds"
-
-        // ✅ Maven project directory
         APP_DIR = "calculator-backend"
-
-        // ✅ Docker build context (repo root)
         DOCKER_BUILD_CONTEXT = "."
-
-        // ✅ Notification Email
         NOTIFICATION_EMAIL = "jeeveshvwandra@gmail.com"
     }
 
