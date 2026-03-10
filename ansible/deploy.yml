@@ -1,14 +1,41 @@
+# ---
+# - name: Deploy Scientific Calculator Docker Container
+#   hosts: webserver
+#   become: false
+#   tasks:
+#     - name: Ensure scientific calculator container is running
+#       community.docker.docker_container:
+#         name: calculator-backend
+#         image: "{{ lookup('env', 'DOCKER_IMAGE') }}:{{ lookup('env', 'DOCKER_TAG') }}"
+#         state: started
+#         restart_policy: always
+#         published_ports:
+#           - "8081:8080"
+#         pull: true
+
+
+
 ---
 - name: Deploy Scientific Calculator Docker Container
   hosts: webserver
   become: false
+
   tasks:
-    - name: Ensure scientific calculator container is running
-      community.docker.docker_container:
-        name: calculator-backend
-        image: "{{ lookup('env', 'DOCKER_IMAGE') }}:{{ lookup('env', 'DOCKER_TAG') }}"
-        state: started
-        restart_policy: always
-        published_ports:
-          - "8081:8080"
-        pull: true
+    - name: Pull latest Docker image
+      shell: docker pull {{ lookup('env', 'DOCKER_IMAGE') }}:{{ lookup('env', 'DOCKER_TAG') }}
+
+    - name: Stop existing container if running
+      shell: docker stop calculator-backend
+      ignore_errors: yes
+
+    - name: Remove existing container
+      shell: docker rm calculator-backend
+      ignore_errors: yes
+
+    - name: Run new container
+      shell: >
+        docker run -d
+        --name calculator-backend
+        --restart always
+        -p 8081:8080
+        {{ lookup('env', 'DOCKER_IMAGE') }}:{{ lookup('env', 'DOCKER_TAG') }}

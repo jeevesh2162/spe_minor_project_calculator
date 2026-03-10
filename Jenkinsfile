@@ -98,13 +98,13 @@ pipeline {
             '''
         }
         success {
-            echo '✅ CI/CD completed successfully!'
+            echo 'CI/CD completed successfully!'
             mail to: "${NOTIFICATION_EMAIL}",
                  subject: "Success: Pipeline ${currentBuild.fullDisplayName}",
                  body: "Great news! The pipeline ${currentBuild.fullDisplayName} finished successfully. \n\nCheck the build status at: ${env.BUILD_URL}"
         }
         failure {
-            echo '❌ Pipeline failed. Check Console Output.'
+            echo 'Pipeline failed. Check Console Output.'
             mail to: "${NOTIFICATION_EMAIL}",
                  subject: "Failure: Pipeline ${currentBuild.fullDisplayName}",
                  body: "The pipeline ${currentBuild.fullDisplayName} has failed. \n\nPlease check the console output at: ${env.BUILD_URL}"
